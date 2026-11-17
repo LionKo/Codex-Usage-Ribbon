@@ -1,4 +1,4 @@
-# Publish only reviewed source files; exclude runtime, screenshots and local tools.
+# Publish only reviewed source files and the public screenshot; exclude local data.
 /*
 !/.gitignore
 !/.gitattributes
@@ -20,6 +20,9 @@
 !/install.ps1
 !/install.cmd
 !/package-portable.py
+!/assets/
+/assets/*
+!/assets/statusline.png
 !/vendor/
 /vendor/*
 !/vendor/statusline.js

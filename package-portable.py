@@ -13,6 +13,7 @@ files = [
     'launch.ps1', 'launch-core.ps1', 'start.vbs', 'stop.ps1', 'stop.vbs',
     'install.ps1', 'install.cmd', 'LICENSE', 'NOTICE',
     'vendor/statusline.js', 'test/usage.test.mjs', 'test/launch.test.ps1',
+    'assets/statusline.png',
     'package-portable.py', 'INSTALL.zh-CN.md', 'README.md', 'README.zh-CN.md', '.gitignore', '.gitattributes',
 ]
 with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as archive:
