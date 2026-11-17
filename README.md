@@ -8,8 +8,8 @@ Windows 版 Codex 桌面用量栏：在输入框下方显示生成速度、首 t
 
 1. 从 [Releases](https://github.com/LionKo/Codex-Usage-Ribbon/releases/latest) 下载 `Codex-Usage-Ribbon-Windows.zip`。
 2. 在新电脑安装 Codex 桌面版，登录并完成至少一轮本地聊天。
-3. 安装 [Node.js 24 或更新版本](https://nodejs.org/en/download)，保留加入 PATH 的选项，无需 `npm install`。
-4. 解压 ZIP 到长期保留的目录，双击 `install.cmd`，创建 **Codex Usage Bar** 桌面快捷方式。
+3. 解压 ZIP 到长期保留的目录，运行 `install.cmd` 自动检查环境。
+4. 只有提示缺少 Node.js 或版本过低时，才安装 [Node.js 24 或更新版本](https://nodejs.org/en/download)，保留加入 PATH 的选项，再运行 `install.cmd`。已有符合要求的版本无需重复安装，也无需 `npm install`。检查通过后会创建 **Codex Usage Bar** 桌面快捷方式。
 5. 完全退出 Codex，再从这个快捷方式启动。
 
 新名称用于 GitHub 和发行包；桌面快捷方式仍叫 **Codex Usage Bar**。完整步骤、停止和卸载方法见 [安装说明](INSTALL.zh-CN.md)。也可以下载仓库源码 ZIP，解压后使用同一个安装脚本。
@@ -19,6 +19,8 @@ Windows 版 Codex 桌面用量栏：在输入框下方显示生成速度、首 t
 - 缓存和上下文：只读本机 Codex 的会话索引及用量记录，按当前聊天匹配。
 - 精确生成速度和首 token 延迟：读取本机 Magpie `127.0.0.1:3425` 的请求统计，需要 Codex 请求经过 Magpie。
 - 缺少 Magpie 记录时，速度可能退回含等待和工具耗时的整轮估算，首 token 延迟显示 `--`。
+
+**Magpie 是可选数据源，不是安装用量栏的前提。** Codex++ 原版使用自己的代理/网关请求日志，不要求 Magpie。本移植版只保留状态栏，没有移植原版代理/网关，当前通过 Magpie 补充请求计时数据；缓存和上下文不依赖它。
 
 辅助程序使用本机 `127.0.0.1:9337` 调试连接，不修改官方安装目录、登录或模型配置。它不迁移账号、密钥和聊天历史；没有自动升级或开机自启。Codex 页面或日志格式变化后可能需要适配。详见 [实现与统计口径](README.zh-CN.md)。
 

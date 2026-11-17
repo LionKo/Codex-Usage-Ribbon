@@ -10,7 +10,7 @@
 
 只需关闭用量栏时双击 `stop.vbs`，会移除本次注入的状态栏并退出辅助进程，Codex 保持打开。下次 `start.vbs` 可以重新启用。
 
-需要已安装的 Node.js 24 或更新版本，无 npm 依赖。辅助进程连接本机 `127.0.0.1:9337` 调试端口，仅注入状态栏模块。退出 Codex 后，辅助进程最多约一分钟内退出。没有开机自启。
+运行 `install.cmd` 自动检查环境；只有提示缺少 Node.js 或版本低于 24 时才需要安装 Node.js 24 或更新版本，已有符合要求的版本无需重复安装。无 npm 依赖。辅助进程连接本机 `127.0.0.1:9337` 调试端口，仅注入状态栏模块。退出 Codex 后，辅助进程最多约一分钟内退出。没有开机自启。
 
 ## 启动窗口
 
@@ -21,6 +21,10 @@
 如果先从普通 Codex 图标启动，已有进程可能未启用调试端口；此时用量栏入口会提示完全退出后再使用用量栏入口，不会另开一个实例。辅助程序不改官方安装目录，也不改 `config.toml` / `auth.json`。
 
 ## 数据口径
+
+**Magpie 可选；Codex++ 原版不依赖 Magpie 来提供状态栏计时。** 在本项目采用的上游固定提交中，状态栏调用 `/request-log/recent`，后端读取 Codex++ 自己的 `request-log.jsonl`，请求记录由其代理/网关产生。本移植版只保留状态栏界面和计算函数，没有移植原版代理/网关，当前用 Magpie 的请求记录替代这部分数据。没有 Magpie 时仍可使用缓存、上下文和有足够记录时的整轮估算速度，只是没有请求级解码速度及首 token 延迟。
+
+上游依据：[请求日志接口](https://github.com/BigPizzaV3/CodexPlusPlus/blob/f84a53080c3e8c88bbe09cd8b09340bfaca3cf79/crates/codex-plus-core/src/routes.rs#L881-L900)、[网关创建请求日志](https://github.com/BigPizzaV3/CodexPlusPlus/blob/f84a53080c3e8c88bbe09cd8b09340bfaca3cf79/crates/codex-plus-core/src/gateway/server.rs#L910-L917)。当前适配见 `data.mjs` 的 `recent()` 和 `mapRequests()`。
 
 - **速度、首 token 延迟**：只读现有 Magpie `http://127.0.0.1:3425/v1/magpie/usage/requests?agent=codex&limit=100`，把会话 ID、输出 token、请求耗时、首 token 耗时映射为 Codex++ 请求记录，再调用原版计算函数。每个会话取最近最多 10 次有效请求；解码速度 = 总输出 token / 总首 token 后耗时。异常样本按原版规则排除。
 - **缓存、上下文**：按会话 ID 从 Codex 本机 SQLite 索引查找 rollout，只读文件尾部的 token_count，按 Codex++ 的原版口径计算。不会拿最后活跃的另一个聊天冒充当前聊天。
