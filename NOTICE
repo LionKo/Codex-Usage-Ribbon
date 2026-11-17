@@ -1,0 +1,22 @@
+LionKo Codex Usage Lens - formerly Codex Usage Bar Only, 2026-11-17
+
+Upstream: https://github.com/BigPizzaV3/CodexPlusPlus
+Commit: f84a53080c3e8c88bbe09cd8b09340bfaca3cf79
+License: GNU Affero General Public License v3.0 only (see LICENSE).
+
+vendor/statusline.js is copied byte-for-byte from
+assets/extensions/usage-statusline/statusline.js at the above commit.
+The rollout parser in data.mjs is a JavaScript adaptation of
+crates/codex-plus-data/src/storage.rs read_rollout_usage_tail/window/event.
+
+The other local files form a minimal replacement host. They are supplied
+under AGPL-3.0-only as part of this derivative. No Codex++ manager, gateway,
+provider switcher, plugin marketplace, themes, pets or update service runs.
+
+Changes: CDP isolated-world transport, read-only local SQLite/rollout reader,
+Magpie request-statistics adapter, Windows launch/stop entry points, tests.
+The adapter replaces the combined hover text with short per-metric tooltips.
+The message-level token badges are disabled; only the composer status line
+is enabled. All corresponding source code is included in this directory.
+
+Independent community derivative. Not an official OpenAI product.

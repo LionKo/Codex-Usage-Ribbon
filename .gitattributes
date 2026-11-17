@@ -1,0 +1,2 @@
+# Preserve the upstream file byte-for-byte, including line endings.
+vendor/statusline.js -text whitespace=cr-at-eol
