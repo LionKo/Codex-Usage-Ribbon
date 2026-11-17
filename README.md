@@ -4,6 +4,28 @@ Windows 版 Codex 桌面用量栏：在输入框下方显示生成速度、首 t
 
 从 Codex++ 提取的独立社区项目，仅启用用量状态栏。不是 OpenAI 官方产品，不包含 Codex 桌面应用或模型服务。
 
+## 让 Codex 帮你安装
+
+在目标 Windows 电脑上打开 Codex，将下面整段提示词复制到聊天中。Codex 会检查环境并执行安装；如果当前窗口需要重启才能启用用量栏，会先完成安装，再告诉你如何重新打开，避免中断正在进行的聊天。
+
+```text
+请直接在这台 Windows 电脑上安装 Codex Usage Ribbon，并验证结果，不要只给我安装教程。
+项目：https://github.com/LionKo/Codex-Usage-Ribbon
+
+请按以下步骤操作：
+1. 阅读仓库当前的 README.md、INSTALL.zh-CN.md 和安装脚本，确认系统及前置条件。使用这台电脑的实际用户目录和 CODEX_HOME，不照搬其他电脑的路径。若不是 Windows，请说明当前安装脚本仅支持 Windows。
+2. 从本仓库最新正式 Release 下载 Codex-Usage-Ribbon-Windows.zip 及同名 .zip.sha256 文件，核对 SHA256 后再解压执行。公开下载不需要 GitHub 登录，也不需要安装 Git、GitHub CLI 或 Python。可使用 PowerShell 下载，入口为：
+   https://github.com/LionKo/Codex-Usage-Ribbon/releases/latest/download/Codex-Usage-Ribbon-Windows.zip
+   https://github.com/LionKo/Codex-Usage-Ribbon/releases/latest/download/Codex-Usage-Ribbon-Windows.zip.sha256
+3. 默认安装到当前用户的 %LOCALAPPDATA%\Codex-Usage-Ribbon，保证 install.ps1 和 start.vbs 位于最终安装目录。如果已经安装，先检查版本、目录和运行状态，保留 runtime 数据及本地修改，不盲目覆盖正在使用的文件。
+4. 先在安装目录运行 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -CheckOnly 检查环境。自动化时直接调用 install.ps1，避免 install.cmd 末尾的 pause 等待输入。仅当缺少 Node.js 或版本低于 24 时，使用官方渠道安装 Node.js 24 或更新版本；已有符合要求的版本不要重复安装，无需 npm install。安装后刷新当前进程的 PATH 或打开新终端，复查 node --version 及脚本检查结果。若遇到系统权限或交互限制，准确说明需要我完成的最少步骤。
+5. 确认 Codex 桌面版已安装、本机已登录并完成至少一轮聊天。如果缺少本地会话数据库，请让我完成一轮聊天后继续，不复制其他电脑的账号或聊天数据。Magpie 是可选项，不要因其未安装而中止，也不要为了它修改模型服务配置：没有 Magpie 时缓存和上下文仍可用，速度可能为整轮估算，首 token 延迟可能显示 --。
+6. 检查通过后运行 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1，确认退出码为 0，并验证桌面 Codex Usage Bar 快捷方式指向本次安装目录中的 start.vbs。不要修改官方 Codex 安装文件、auth.json 或模型配置。
+7. 若现有 Codex 已启用本机 9337 调试端口，可运行 start.vbs 并检查 runtime 日志、辅助进程及有用量记录的聊天中是否出现状态栏。若当前 Codex 没有启用调试端口，不要强制结束正在运行的 Codex；先完成安装，告诉我在本轮任务结束后正常退出所有 Codex 窗口，再从 Codex Usage Bar 快捷方式启动。重新打开后继续验证；不能仅凭创建快捷方式就声称状态栏已经显示。
+
+最后用中文告诉我：安装目录、Node.js 检查结果、快捷方式是否创建、状态栏是否已验证，以及是否还需要我正常重启 Codex。遇到失败请根据实际错误排查，不要把 Magpie 缺失或暂无用量记录误判成安装失败。
+```
+
 ## 下载与安装
 
 1. 从 [Releases](https://github.com/LionKo/Codex-Usage-Ribbon/releases/latest) 下载 `Codex-Usage-Ribbon-Windows.zip`。
