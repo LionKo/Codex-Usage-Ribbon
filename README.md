@@ -1,4 +1,4 @@
-# LionKo Codex Usage Lens
+# Codex Usage Ribbon
 
 Windows 版 Codex 桌面用量栏：在输入框下方显示生成速度、首 token 延迟、缓存命中率和上下文占用。
 
@@ -6,7 +6,7 @@ Windows 版 Codex 桌面用量栏：在输入框下方显示生成速度、首 t
 
 ## 下载与安装
 
-1. 从 [Releases](https://github.com/LionKo/LionKo-Codex-Usage-Lens/releases/latest) 下载 `LionKo-Codex-Usage-Lens-Windows.zip`。
+1. 从 [Releases](https://github.com/LionKo/Codex-Usage-Ribbon/releases/latest) 下载 `Codex-Usage-Ribbon-Windows.zip`。
 2. 在新电脑安装 Codex 桌面版，登录并完成至少一轮本地聊天。
 3. 安装 [Node.js 24 或更新版本](https://nodejs.org/en/download)，保留加入 PATH 的选项，无需 `npm install`。
 4. 解压 ZIP 到长期保留的目录，双击 `install.cmd`，创建 **Codex Usage Bar** 桌面快捷方式。

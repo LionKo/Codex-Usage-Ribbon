@@ -5,7 +5,7 @@ import re
 import zipfile
 
 root = Path(__file__).resolve().parent
-package_name = 'LionKo-Codex-Usage-Lens'
+package_name = 'Codex-Usage-Ribbon'
 out = root / 'releases' / f'{package_name}-Windows.zip'
 out.parent.mkdir(parents=True, exist_ok=True)
 files = [

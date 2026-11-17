@@ -1,4 +1,4 @@
-# LionKo Codex Usage Lens：在另一台 Windows 电脑安装
+# Codex Usage Ribbon：在另一台 Windows 电脑安装
 
 适用于 Windows 版 Codex 桌面应用。这个包不包含 Codex 或模型服务。
 
