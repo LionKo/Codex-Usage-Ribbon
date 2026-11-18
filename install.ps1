@@ -1,8 +1,8 @@
-param([switch]$CheckOnly)
+param([switch]$CheckOnly, [switch]$StartMenuShortcut)
 $ErrorActionPreference = 'Stop'
 try {
     $baseDir = $PSScriptRoot
-    $node = Get-Command node.exe -ErrorAction SilentlyContinue
+    $node = Get-Command node.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $node) { throw 'Install Node.js 24 LTS from https://nodejs.org/en/download, then run install.cmd again.' }
     $nodeVersion = & $node.Source --version
     $major = [int]($nodeVersion -replace '^v','').Split('.')[0]
@@ -29,8 +29,8 @@ try {
 
     $codexDir = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
     $database = Get-ChildItem -LiteralPath $codexDir -Filter 'state_*.sqlite' -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $database) { throw 'Open Codex and finish at least one local chat first, then run install.cmd again.' }
-    Write-Host '[OK] Local Codex usage database'
+    if ($database) { Write-Host '[OK] Local Codex usage database' }
+    else { Write-Host '[NOTE] The usage bar shows placeholders until the first local chat records usage.' }
     try {
         $null = Invoke-RestMethod 'http://127.0.0.1:3425/v1/magpie/usage/requests?agent=codex&limit=1' -TimeoutSec 3
         Write-Host '[OK] Local Magpie request statistics'
@@ -38,6 +38,19 @@ try {
         Write-Host '[NOTE] Magpie is not available at 127.0.0.1:3425. Cache/context still work; precise decode speed and first-token latency need Magpie records.'
     }
     if ($CheckOnly) { Write-Host 'Checks completed. No shortcut was changed.'; exit 0 }
+    if ($StartMenuShortcut) {
+        $programs = [Environment]::GetFolderPath('Programs')
+        $entry = Join-Path $programs 'ChatGPT.lnk'
+        if (Test-Path -LiteralPath $entry) {
+            $backup = Join-Path $baseDir ('runtime\start-shortcut-backup-' + [guid]::NewGuid().ToString('N'))
+            New-Item -Path $backup -ItemType Directory -Force | Out-Null
+            Copy-Item -LiteralPath $entry -Destination (Join-Path $backup 'ChatGPT.lnk')
+            Write-Host "Previous shortcut backed up to $backup"
+        }
+        & (Join-Path $baseDir 'start-menu-shortcut.ps1') -Destination $entry | Out-Null
+        Write-Host 'ChatGPT shortcut installed with its official Start icon. Pin this shortcut where you want it.'
+        exit 0
+    }
     $desktop = [Environment]::GetFolderPath('Desktop')
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut((Join-Path $desktop 'Codex Usage Bar.lnk'))

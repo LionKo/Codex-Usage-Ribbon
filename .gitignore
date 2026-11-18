@@ -15,6 +15,8 @@
 !/launch.ps1
 !/launch-core.ps1
 !/start.vbs
+!/start-menu-shortcut.ps1
+!/start-link.cs
 !/stop.ps1
 !/stop.vbs
 !/install.ps1
@@ -30,3 +32,4 @@
 /test/*
 !/test/usage.test.mjs
 !/test/launch.test.ps1
+!/test/renderer.test.mjs

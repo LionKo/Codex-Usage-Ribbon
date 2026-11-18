@@ -6,7 +6,7 @@ import { CDP } from './cdp.mjs';
 const root=import.meta.dirname, port=Number(process.argv.find(x=>x.startsWith('--port='))?.split('=')[1]||9337);
 const world='codex-usage-bar-only';
 const code='(() => { if (window !== window.top || window.__usageBarOnly) return;\n'+await readFile(path.join(root,'vendor/statusline.js'),'utf8')+'\n'+await readFile(path.join(root,'adapter.js'),'utf8')+'\n})();';
-const source=new UsageSource(); await source.init();
+const source=new UsageSource();
 const clients=new Map(); let ending=false,misses=0;
 await mkdir(path.join(root,'runtime'),{recursive:true});
 const stateFile=path.join(root,'runtime',`host-${port}.json`),stopFile=path.join(root,'runtime',`stop-${port}`);

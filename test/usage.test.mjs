@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {readFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,readFile,realpath,rm,writeFile} from 'node:fs/promises';
+import {DatabaseSync} from 'node:sqlite';
+import os from 'node:os';
+import path from 'node:path';
 import {parseUsage,mapRequests,normalizeId,UsageSource} from '../data.mjs';
 const code=await readFile(new URL('../vendor/statusline.js',import.meta.url),'utf8');
 const ctx=vm.createContext({Date,document:{documentElement:{lang:'zh-CN'}},navigator:{language:'zh-CN'}});
@@ -32,6 +35,36 @@ test('missing first-token timing and failed samples never invent decode TPS',()=
 test('strict thread IDs; endpoint allowlist',async()=>{
  assert.equal(normalizeId('../../secrets'),'');assert.equal(normalizeId('local:'+id),id);
  await assert.rejects(new UsageSource().call('/settings/set',{}),/Unsupported/);
+});
+test('reads normal and Windows namespaced rollout paths within CODEX_HOME', async () => {
+ const tempRoot = await realpath(os.tmpdir());
+ const fixture = await mkdtemp(path.join(tempRoot, 'ribbon-usage-'));
+ const root = path.join(fixture, 'profile');
+ const outside = path.join(fixture, 'outside.jsonl');
+ const source = new UsageSource(root);
+ try {
+  await mkdir(root);
+  const current = path.join(root, 'current.jsonl');
+  const event = count(new Date().toISOString(), null, 100);
+  await Promise.all([writeFile(current, event), writeFile(outside, event)]);
+  const db = new DatabaseSync(path.join(root, 'state_5.sqlite'));
+  try {
+   db.exec('CREATE TABLE threads (id TEXT PRIMARY KEY, rollout_path TEXT NOT NULL)');
+   const insert = db.prepare('INSERT INTO threads VALUES (?, ?)');
+   insert.run('normal-thread', current);
+   insert.run('namespaced-thread', path.toNamespacedPath(current));
+   insert.run('external-thread', path.toNamespacedPath(outside));
+  } finally { db.close(); }
+  for (const thread of ['normal-thread', 'namespaced-thread']) {
+   const usage = await source.live(thread);
+   assert.equal(usage.status, 'ok');
+   assert.equal(usage.events[0].cached_input_tokens, 800);
+  }
+  assert.deepEqual(await source.live('external-thread'), {status:'unavailable',events:[]});
+ } finally {
+  source.close();
+  if (path.dirname(await realpath(fixture)) === tempRoot) await rm(fixture, {recursive:true,force:true});
+ }
 });
 test('live local source returns only allowed usage fields and maps current thread',async()=>{
  const src=new UsageSource();await src.init();

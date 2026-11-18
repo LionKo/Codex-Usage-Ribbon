@@ -42,6 +42,8 @@ Windows 版 Codex 桌面用量栏：在输入框下方显示生成速度、首 t
 
 新名称用于 GitHub 和发行包；桌面快捷方式仍叫 **Codex Usage Bar**。完整步骤、停止和卸载方法见 [安装说明](INSTALL.zh-CN.md)。也可以下载仓库源码 ZIP，解压后使用同一个安装脚本。
 
+也可以用 `install.ps1 -StartMenuShortcut` 准备 **ChatGPT** 联合启动入口。固定这个快捷方式后，点击一次即可启动客户端和原版内嵌状态栏。详见 [开始菜单安装说明](INSTALL.zh-CN.md#从开始菜单一起启动)。
+
 ## 数据来源
 
 - 缓存和上下文：只读本机 Codex 的会话索引及用量记录，按当前聊天匹配。
@@ -62,7 +64,7 @@ node --disable-warning=ExperimentalWarning --test --test-name-pattern="^(?!live 
 # 模拟系统进程，不实际启动或关闭 Codex
 powershell -NoProfile -ExecutionPolicy Bypass -File test/launch.test.ps1
 # 完整测试另外需要本机 Codex 会话及匹配的 Magpie 记录
-node --disable-warning=ExperimentalWarning --test test/usage.test.mjs
+node --disable-warning=ExperimentalWarning --test test/usage.test.mjs test/renderer.test.mjs
 # 输出到 releases/，使用显式文件清单排除本机数据
 python package-portable.py
 ```

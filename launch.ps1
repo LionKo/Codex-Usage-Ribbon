@@ -10,7 +10,7 @@ $locked = $false
 try {
     try { $locked = $mutex.WaitOne(0) } catch [System.Threading.AbandonedMutexException] { $locked = $true }
     if (-not $locked) { return }
-    $nodePath = (Get-Command node.exe -ErrorAction Stop).Source
+    $nodePath = (Get-Command node.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
     $app = Start-OrReuseCodex -Port $Port
     $shell = New-Object -ComObject WScript.Shell
     $null = $shell.AppActivate([int]$app.ProcessId)
@@ -19,8 +19,8 @@ try {
         # Never launch an isolated replacement or terminate an active chat.
         Add-Type -AssemblyName PresentationFramework
         [System.Windows.MessageBox]::Show(
-            'Codex is already running. To enable the usage bar, finish your work, fully exit all Codex windows, then open Codex Usage Bar. No additional Codex instance was started.',
-            'Codex Usage Bar'
+            'ChatGPT is already running. To load the status bar, fully exit ChatGPT when your work is finished, then open the pinned ChatGPT entry again.',
+            'ChatGPT'
         ) | Out-Null
         return
     }

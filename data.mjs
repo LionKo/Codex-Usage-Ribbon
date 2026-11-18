@@ -1,10 +1,23 @@
 // AGPL-3.0-only. Rollout parser adapted from Codex++ storage.rs (see NOTICE).
 import { DatabaseSync } from 'node:sqlite';
-import { open, readdir, stat } from 'node:fs/promises';
+import { open, readdir, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
 export const home = process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
+
+function comparablePath(filename) {
+  const absolute = path.resolve(filename);
+  if (process.platform !== 'win32') return absolute;
+  // SQLite can store Win32 extended-length paths, while CODEX_HOME uses DOS syntax.
+  return absolute.replace(/^\\\\\?\\UNC\\/i, '\\\\').replace(/^\\\\\?\\(?=[A-Z]:\\)/i, '');
+}
+
+function isWithin(root, filename) {
+  const relative = path.relative(comparablePath(root), comparablePath(filename));
+  return !!relative && relative !== '..' && !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative);
+}
+
 export function normalizeId(value) {
   const id = String(value || '').replace(/^local:/, '');
   return /^[a-zA-Z0-9_.-]{8,128}$/.test(id) && !['__proto__','constructor','prototype'].includes(id) ? id : '';
@@ -41,7 +54,7 @@ export function parseUsage(text, start = 0) {
 
 export class UsageSource {
   constructor(root = home, magpie = 'http://127.0.0.1:3425') {
-    this.root = root; this.magpie = magpie; this.db = null;
+    this.root = root; this.magpie = magpie; this.db = null; this.opening = null;
     this.files = new Map(); this.cache = new Map(); this.requests = []; this.requestTime = 0; this.pending = null;
   }
   async init() {
@@ -53,14 +66,17 @@ export class UsageSource {
   async live(value) {
     const id = normalizeId(value);
     if (!id) return {status:'unavailable',events:[]};
+    if (!this.db) await (this.opening ??= this.init().finally(() => { this.opening = null; }));
     // Use the exact thread ID. Never substitute the latest active session.
     const row = this.db.prepare('SELECT rollout_path FROM threads WHERE id=?').get(id);
     if (!row) return {status:'unavailable',events:[]};
-    const filename = path.resolve(row.rollout_path), rel = path.relative(this.root, filename);
-    if (rel.startsWith('..') || path.isAbsolute(rel)) return {status:'unavailable',events:[]};
-    const s = await stat(filename), previous = this.cache.get(id);
+    const filename = path.resolve(row.rollout_path);
+    if (!isWithin(this.root, filename)) return {status:'unavailable',events:[]};
+    const [storageRoot, rollout] = await Promise.all([realpath(this.root), realpath(filename)]);
+    if (!isWithin(storageRoot, rollout)) return {status:'unavailable',events:[]};
+    const s = await stat(rollout), previous = this.cache.get(id);
     if (previous?.size === s.size && previous?.mtime === s.mtimeMs) return {status:'ok',events:previous.events};
-    const f = await open(filename, 'r'); let events;
+    const f = await open(rollout, 'r'); let events;
     try {
       for (let window = 512*1024; ; window = Math.min(window*4,8*1024*1024)) {
         const start = Math.max(0,s.size-window), buf = Buffer.alloc(s.size-start);

@@ -21,6 +21,21 @@
   codexPlusUsageRefreshTurnUsage = () => Promise.resolve(null);
   codexPlusUsageRenderTurnUsage = () => {};
   codexPlusUsageMergeLiveTurnUsage = () => null;
+  // The home composer has no thread ID yet. Mount the same in-flow row with
+  // empty values, then let the upstream code take over when a thread exists.
+  const syncPlacement = codexPlusUsageSyncPlacement;
+  codexPlusUsageSyncPlacement = () => {
+    const placement = syncPlacement();
+    if (placement || !codexPlusUsageState.running) return placement;
+    const card = codexPlusUsageComposerCard()?.card;
+    if (!card) return null;
+    const node = codexPlusUsageEnsureNode(card);
+    if (node) {
+      codexPlusUsageShow(node);
+      codexPlusUsageRender(null);
+    }
+    return null;
+  };
   // Keep the upstream calculations intact; explain only the hovered metric.
   const renderUsage = codexPlusUsageRender;
   codexPlusUsageRender = (snapshot) => {
